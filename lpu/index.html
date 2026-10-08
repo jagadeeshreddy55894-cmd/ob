@@ -3,14 +3,14 @@
 <head>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>Mess Pass</title>
 <style>
   :root{
     --card-max:500px;
     --card-radius:18px;
     --green: #26a42b;
-    --brown:#4a2e0b;
+    --brown: #7a2d1e;
     --text:#111;
   }
 
@@ -18,7 +18,7 @@
   body{
     margin:0;
     font-family: 'Roboto', sans-serif;
-    background:#f3f3f0;
+    background:f3f3f0;
     color:var(--text);
   }
 
@@ -191,14 +191,17 @@
     font-weight:600;
   }
 
-   .brown-box{
+ .brown-box{
     width:100%;
-    background:#1a4735;  
+    background:#1b4f1b;
     padding:20px;
     border-bottom-left-radius:var(--card-radius);
     border-bottom-right-radius:var(--card-radius);
     margin-top:-12px;
-  }
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+
+}
 
   .brown-inner{
     background:#FEFEFE;
@@ -207,7 +210,12 @@
     height:350px; 
     width:100%;
     overflow:hidden;
+    pointer-events: none;
+
   }
+  .brown-inner video {
+    pointer-events: none;
+}
 
   .close-btn{
     position:absolute;
@@ -277,7 +285,7 @@
     </div>
     <div class="left-col">
       <div class="sid">12311286</div>
-      <div class="line">Swami Naidu</div>
+      <div class="line">Jagan Mohan</div>
     </div>
   </div>
 
@@ -287,7 +295,7 @@
     </div>
     <div class="right-col">
       <div class="meal-title" id="mealTitle"></div>
-      <div class="line">Mess-Centre-02</div>
+      <div class="line">Mess BH-4</div>
     </div>
   </div>
 
@@ -297,7 +305,7 @@
         P132: B.Tech. (Computer Science and Engineering)(2023)
       </div>
     <div class="assigned-mess">
-  Your Assigned Mess - Mess-Centre-02
+  Your Assigned Mess - Mess BH-4
 </div>
 
       <div class="dt-row">
@@ -307,15 +315,15 @@
 
       <div class="approved">Meal Approved</div>
 
-      <div class="rate-wrap">
-  <button class="rate-btn" onclick="window.location.href='feedback.html'">
-    ⭐ RATE US
-  </button>
-</div>
+      <div class="rate-wrap"><button class="rate-btn" onclick="
+
+window.location.href='feedback.html'">
+        ⭐ RATE US</button>
+      </div>
 
     </div>
 
-    <div class="brown-box" id="brownBox">
+    <div class="brown-box">
       <div class="brown-inner">
         <video src="video.mp4" autoplay muted playsinline style="
             width:94%;
@@ -329,43 +337,6 @@
     </div>
 
   </article>
-</div>
-
-<div id="devPanel" style="
-display:none;
-position:fixed;
-left:50%;
-top:50%;
-transform:translate(-50%,-50%);
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 0 20px rgba(0,0,0,.3);
-z-index:9999;
-">
-
-<h3>Developer Mode</h3>
-
-<input
-id="colorInput"
-placeholder="green or #4a2e0b">
-
-<br><br>
-
-<input
-type="color"
-id="picker">
-
-<br><br>
-
-<button id="applyBtn">
-Apply
-</button>
-
-<button id="closeBtn">
-Close
-</button>
-
 </div>
 
 <script>
@@ -404,64 +375,143 @@ function updateMeal() {
   document.getElementById("mealTitle").textContent = meal;
 }
 updateMeal();
-const brownBox = document.getElementById("brownBox");
-const panel = document.getElementById("devPanel");
-const picker = document.getElementById("picker");
-const input = document.getElementById("colorInput");
+const brownBox = document.querySelector(".brown-box");
 
-let hold;
+let tapCount = 0;
+let tapTimer = null;
 
-brownBox.addEventListener("mousedown",()=>{
-    hold=setTimeout(()=>{
-        panel.style.display="block";
-    },5000);
-});
+const defaultColor = "#1b4f1b";
 
-brownBox.addEventListener("mouseup",()=>{
-    clearTimeout(hold);
-});
+const savedColor = localStorage.getItem("messPassColor");
 
-brownBox.addEventListener("mouseleave",()=>{
-    clearTimeout(hold);
-});
-
-brownBox.addEventListener("touchstart",()=>{
-    hold=setTimeout(()=>{
-        panel.style.display="block";
-    },5000);
-});
-
-brownBox.addEventListener("touchend",()=>{
-    clearTimeout(hold);
-});
+if (savedColor) {
+    brownBox.style.backgroundColor = savedColor;
+}
 
 
-picker.addEventListener("input",function(){
+function openColorPicker() {
 
-    document.documentElement.style
-    .setProperty("--brown",this.value);
+    const colorPicker = document.createElement("input");
 
-});
+    colorPicker.type = "color";
 
-document.getElementById("applyBtn")
-.onclick=function(){
+    colorPicker.value =
+        localStorage.getItem("messPassColor") || defaultColor;
 
-    let c=input.value.trim();
+    colorPicker.style.position = "fixed";
+    colorPicker.style.left = "50%";
+    colorPicker.style.top = "50%";
+    colorPicker.style.width = "40px";
+    colorPicker.style.height = "40px";
+    colorPicker.style.opacity = "1";
+    colorPicker.style.zIndex = "999999";
 
-    if(c!="")
-        document.documentElement
-        .style.setProperty("--brown",c);
+    document.body.appendChild(colorPicker);
 
-    panel.style.display="none";
+    colorPicker.addEventListener("input", function () {
 
-};
+        brownBox.style.backgroundColor = this.value;
 
-document.getElementById("closeBtn")
-.onclick=function(){
+        localStorage.setItem(
+            "messPassColor",
+            this.value
+        );
 
-    panel.style.display="none";
+    });
 
-};
+    colorPicker.addEventListener("change", function () {
+
+        brownBox.style.backgroundColor = this.value;
+
+        localStorage.setItem(
+            "messPassColor",
+            this.value
+        );
+
+        setTimeout(function () {
+
+            if (colorPicker.parentNode) {
+                colorPicker.remove();
+            }
+
+        }, 500);
+
+    });
+
+    try {
+
+        if (colorPicker.showPicker) {
+
+            colorPicker.showPicker();
+
+        } else {
+
+            colorPicker.click();
+
+        }
+
+    } catch (error) {
+
+        colorPicker.click();
+
+    }
+}
+
+
+function registerTap() {
+
+    tapCount++;
+
+    clearTimeout(tapTimer);
+
+    tapTimer = setTimeout(function () {
+
+        tapCount = 0;
+
+    }, 800);
+
+
+    if (tapCount === 3) {
+
+        tapCount = 0;
+
+        clearTimeout(tapTimer);
+
+        openColorPicker();
+
+    }
+
+}
+
+
+/* Android / iPhone */
+
+brownBox.addEventListener(
+    "touchend",
+    function(event) {
+
+        event.preventDefault();
+
+        registerTap();
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* Laptop / Desktop */
+
+brownBox.addEventListener(
+    "click",
+    function() {
+
+        registerTap();
+
+    }
+);
+
 </script>
 
 </body>
